@@ -2,6 +2,12 @@
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -18,32 +24,9 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-var initialIssues = [{
-  id: 1,
-  status: 'New',
-  owner: 'Ravan',
-  effort: 5,
-  created: new Date('2018-08-15'),
-  due: undefined,
-  title: 'Error in console when clicking Add'
-}, {
-  id: 2,
-  status: 'Assigned',
-  owner: 'Eddie',
-  effort: 14,
-  created: new Date('2018-08-16'),
-  due: new Date('2018-08-30'),
-  title: 'Missing botton border on panel'
-}];
-var sampleIssue = {
-  status: "New",
-  owner: "Pieta",
-  title: "Completion data should be optional"
-};
 
 var IssueFilter = /*#__PURE__*/function (_React$Component) {
   _inherits(IssueFilter, _React$Component);
@@ -58,7 +41,8 @@ var IssueFilter = /*#__PURE__*/function (_React$Component) {
 
   _createClass(IssueFilter, [{
     key: "render",
-    value: function render() {
+    value: // eslint-disable-line
+    function render() {
       return /*#__PURE__*/React.createElement("div", null, "This is a placeholder for the issue filter.");
     }
   }]);
@@ -66,132 +50,246 @@ var IssueFilter = /*#__PURE__*/function (_React$Component) {
   return IssueFilter;
 }(React.Component);
 
-var IssueRow = /*#__PURE__*/function (_React$Component2) {
-  _inherits(IssueRow, _React$Component2);
+function IssueRow(props) {
+  var issue = props.issue;
+  return /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", null, issue.id), /*#__PURE__*/React.createElement("td", null, issue.status), /*#__PURE__*/React.createElement("td", null, issue.owner), /*#__PURE__*/React.createElement("td", null, issue.created.toDateString()), /*#__PURE__*/React.createElement("td", null, issue.effort), /*#__PURE__*/React.createElement("td", null, issue.due ? issue.due.toDateString() : ''), /*#__PURE__*/React.createElement("td", null, issue.title));
+}
 
-  var _super2 = _createSuper(IssueRow);
+function IssueTable(props) {
+  var issueRows = props.issues.map(function (issue) {
+    return /*#__PURE__*/React.createElement(IssueRow, {
+      key: issue.id,
+      issue: issue
+    });
+  });
+  return /*#__PURE__*/React.createElement("table", {
+    className: "bordered-table"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "ID"), /*#__PURE__*/React.createElement("th", null, "Status"), /*#__PURE__*/React.createElement("th", null, "Owner"), /*#__PURE__*/React.createElement("th", null, "Created"), /*#__PURE__*/React.createElement("th", null, "Effort"), /*#__PURE__*/React.createElement("th", null, "Due Date"), /*#__PURE__*/React.createElement("th", null, "Title"))), /*#__PURE__*/React.createElement("tbody", null, issueRows));
+} //graphql date iso formatting
 
-  function IssueRow() {
-    _classCallCheck(this, IssueRow);
 
-    return _super2.apply(this, arguments);
+var dateRegex = new RegExp(/^\d\d\d\d-\d\d-\d\d/);
+
+function jsonDateReviver(key, value) {
+  //reviver for json.parse()
+  if (dateRegex.test(value)) {
+    return new Date(value);
   }
 
-  _createClass(IssueRow, [{
-    key: "render",
-    value: function render() {
-      var issue = this.props.issue;
-      return /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", null, issue.id), /*#__PURE__*/React.createElement("td", null, issue.status), /*#__PURE__*/React.createElement("td", null, issue.owner), /*#__PURE__*/React.createElement("td", null, issue.created.toDateString()), /*#__PURE__*/React.createElement("td", null, issue.effort), /*#__PURE__*/React.createElement("td", null, issue.due ? issue.due.toDateString() : ''), /*#__PURE__*/React.createElement("td", null, issue.title));
-    }
-  }]);
+  return value;
+}
 
-  return IssueRow;
-}(React.Component);
+var IssueAdd = /*#__PURE__*/function (_React$Component2) {
+  _inherits(IssueAdd, _React$Component2);
 
-var IssueTable = /*#__PURE__*/function (_React$Component3) {
-  _inherits(IssueTable, _React$Component3);
+  var _super2 = _createSuper(IssueAdd);
 
-  var _super3 = _createSuper(IssueTable);
-
-  function IssueTable() {
-    var _this;
-
-    _classCallCheck(this, IssueTable);
-
-    _this = _super3.call(this);
-    _this.state = {
-      issues: []
-    };
-    setTimeout(function () {
-      _this.createIssue(sampleIssue);
-    }, 2000);
-    return _this;
-  } //Called after rendering DOM
-  //ComponentDidUpdate() might not initially render
-
-
-  _createClass(IssueTable, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.loadData();
-    }
-  }, {
-    key: "loadData",
-    value: function loadData() {
-      var _this2 = this;
-
-      setTimeout(function () {
-        _this2.setState({
-          issues: initialIssues
-        });
-      }, 500);
-    }
-  }, {
-    key: "createIssue",
-    value: function createIssue(issue) {
-      issue.id = this.state.issues.length + 1;
-      issue.created = new Date();
-      var newIssueList = this.state.issues.slice();
-      newIssueList.push(issue);
-      this.setState({
-        issues: newIssueList
-      });
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var issueRows = this.state.issues.map(function (issue) {
-        return /*#__PURE__*/React.createElement(IssueRow, {
-          key: issue.id,
-          issue: issue
-        });
-      });
-      return /*#__PURE__*/React.createElement("table", {
-        className: "bordered-table"
-      }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "ID"), /*#__PURE__*/React.createElement("th", null, "Status"), /*#__PURE__*/React.createElement("th", null, "Owner"), /*#__PURE__*/React.createElement("th", null, "Created"), /*#__PURE__*/React.createElement("th", null, "Effort"), /*#__PURE__*/React.createElement("th", null, "Due Date"), /*#__PURE__*/React.createElement("th", null, "Title"))), /*#__PURE__*/React.createElement("tbody", null, issueRows));
-    }
-  }]);
-
-  return IssueTable;
-}(React.Component);
-
-var IssueAdd = /*#__PURE__*/function (_React$Component4) {
-  _inherits(IssueAdd, _React$Component4);
-
-  var _super4 = _createSuper(IssueAdd);
-
+  // eslint-disable-line
   function IssueAdd() {
     _classCallCheck(this, IssueAdd);
 
-    return _super4.apply(this, arguments);
-  }
+    return _super2.call(this);
+  } //use arrowfunction for onSubmit or bind this to handleSubmit in constructor
+
 
   _createClass(IssueAdd, [{
+    key: "handleSubmit",
+    value: function handleSubmit(event) {
+      event.preventDefault();
+      var form = document.forms.issueAdd; //form collection
+
+      var issue = {
+        due: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 15),
+        //set due day to + 15 days from date of submit
+        owner: form.owner.value,
+        title: form.title.value
+      };
+      this.props.createIssue(issue);
+      form.owner.value = "";
+      form.title.value = "";
+    }
+  }, {
     key: "render",
     value: function render() {
-      return /*#__PURE__*/React.createElement("div", null, "This is a placeholder for the issue add.");
+      var _this = this;
+
+      return /*#__PURE__*/React.createElement("form", {
+        name: "issueAdd",
+        onSubmit: function onSubmit(event) {
+          _this.handleSubmit(event);
+        }
+      }, /*#__PURE__*/React.createElement("input", {
+        type: "text",
+        name: "owner",
+        placeholder: "Owner"
+      }), /*#__PURE__*/React.createElement("input", {
+        type: "text",
+        name: "title",
+        placeholder: "Title"
+      }), /*#__PURE__*/React.createElement("button", null, "Add"));
     }
   }]);
 
   return IssueAdd;
 }(React.Component);
 
-var IssueList = /*#__PURE__*/function (_React$Component5) {
-  _inherits(IssueList, _React$Component5);
+var IssueList = /*#__PURE__*/function (_React$Component3) {
+  _inherits(IssueList, _React$Component3);
 
-  var _super5 = _createSuper(IssueList);
+  var _super3 = _createSuper(IssueList);
 
+  // eslint-disable-line
   function IssueList() {
+    var _this2;
+
     _classCallCheck(this, IssueList);
 
-    return _super5.apply(this, arguments);
-  }
+    _this2 = _super3.call(this);
+
+    _defineProperty(_assertThisInitialized(_this2), "createIssue", /*#__PURE__*/function () {
+      var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(issue) {
+        var query, response, _yield$response$data, data;
+
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                query = "mutation{\n            issueAdd(issue:{\n                title:\"".concat(issue.title, "\",\n                owner:\"").concat(issue.owner, "\",\n                due:\"").concat(issue.due.toISOString(), "\"\n            })\n            {id title due}\n        }");
+                _context.prev = 1;
+                _context.next = 4;
+                return axios({
+                  method: 'post',
+                  url: '/graphql',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  data: JSON.stringify({
+                    query: query
+                  })
+                });
+
+              case 4:
+                response = _context.sent;
+                _context.next = 7;
+                return response.data;
+
+              case 7:
+                _yield$response$data = _context.sent;
+                data = _yield$response$data.data;
+                console.log('response: ' + JSON.stringify(data));
+                _context.next = 15;
+                break;
+
+              case 12:
+                _context.prev = 12;
+                _context.t0 = _context["catch"](1);
+                console.log(_context.t0);
+
+              case 15:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, null, [[1, 12]]);
+      }));
+
+      return function (_x) {
+        return _ref.apply(this, arguments);
+      };
+    }());
+
+    _this2.state = {
+      issues: []
+    }; //this.createIssue=this.createIssue.bind(this)
+
+    return _this2;
+  } //Called after rendering DOM
+
 
   _createClass(IssueList, [{
-    key: "render",
-    value: function render() {
-      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h1", null, "Issue Tracker"), /*#__PURE__*/React.createElement(IssueFilter, null), /*#__PURE__*/React.createElement("hr", null), /*#__PURE__*/React.createElement(IssueTable, null), /*#__PURE__*/React.createElement("hr", null), /*#__PURE__*/React.createElement(IssueAdd, null));
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      //ComponentDidUpdate() might not initially render
+      this.loadData();
     }
+  }, {
+    key: "loadData",
+    value: function () {
+      var _loadData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+        var query, response, _yield$response$data2, result;
+
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                //graphql query
+                query = "query {\n            issueList{\n                id title status owner created effort due\n            }\n        }"; //axios through unpkg
+
+                _context2.prev = 1;
+                _context2.next = 4;
+                return axios({
+                  method: 'post',
+                  url: '/graphql',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  data: JSON.stringify({
+                    query: query
+                  }),
+                  transformResponse: [function (data) {
+                    //responseType does not work
+                    data = JSON.parse(data, jsonDateReviver);
+                    return data;
+                  }]
+                });
+
+              case 4:
+                response = _context2.sent;
+                _context2.next = 7;
+                return response.data;
+
+              case 7:
+                _yield$response$data2 = _context2.sent;
+                result = _yield$response$data2.data;
+                //console.log(result)
+                this.setState({
+                  issues: result.issueList
+                });
+                _context2.next = 15;
+                break;
+
+              case 12:
+                _context2.prev = 12;
+                _context2.t0 = _context2["catch"](1);
+                console.log(JSON.stringify(_context2.t0));
+
+              case 15:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this, [[1, 12]]);
+      }));
+
+      function loadData() {
+        return _loadData.apply(this, arguments);
+      }
+
+      return loadData;
+    }()
+  }, {
+    key: "render",
+    value:
+    /* eslint-disable */
+    function render() {
+      return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h1", null, "Issue Tracker"), /*#__PURE__*/React.createElement(IssueFilter, null), /*#__PURE__*/React.createElement("hr", null), /*#__PURE__*/React.createElement(IssueTable, {
+        issues: this.state.issues
+      }), /*#__PURE__*/React.createElement("hr", null), /*#__PURE__*/React.createElement(IssueAdd, {
+        createIssue: this.createIssue
+      }));
+    }
+    /* eslint-disable */
+
   }]);
 
   return IssueList;
@@ -200,4 +298,4 @@ var IssueList = /*#__PURE__*/function (_React$Component5) {
 
 var element = /*#__PURE__*/React.createElement(IssueList, null); // load component
 
-ReactDOM.render(element, document.getElementById('contents'));
+ReactDOM.render(element, document.getElementById('contents')); // eslint-disable-line

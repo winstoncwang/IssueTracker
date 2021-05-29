@@ -8,20 +8,27 @@
         "eslint:recommended",
         "plugin:react/recommended"
     ],
+    "parser":"@babel/eslint-parser",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
         },
         "ecmaVersion": 12,
-        "sourceType": "module"
+        "sourceType": "module",
+        "babelOptions": {
+            "configFile": "./src/.babelrc"
+          }
     },
     "plugins": [
-        "react"
+        "react",
+        "@babel"
     ],
     "rules": {
         "react/react-in-jsx-scope":"off",
         "react/jsx-uses-react":"off",
-        "react/prop-types":"off"
+        "react/prop-types":"off",
+        "arrow-spacing":"warn",
+        "space-infix-ops":"warn"
     },
     "settings": {
         "react":{

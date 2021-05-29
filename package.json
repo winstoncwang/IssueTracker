@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -w server server/server.js",
+    "start": "nodemon -w server -e js,graphql server/server.js",
     "compile": "babel src --out-dir public",
     "watch": "babel src --out-dir public --watch --verbose",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src --ext .js,.jsx",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "eslint src --fix --ext .js,.jsx"
   },
   "repository": {
     "type": "git",
@@ -22,12 +22,18 @@
   },
   "homepage": "https://github.com/winstoncwang/IssueTracker#readme",
   "dependencies": {
+    "apollo-server-express": "^2.3.1",
+    "axios": "^0.21.1",
     "express": "^4.17.1",
+    "graphql": "^0.13.2",
     "nodemon": "^1.19.4"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.17",
     "@babel/core": "^7.12.17",
+    "@babel/eslint-parser": "^7.14.2",
+    "@babel/eslint-plugin": "^7.13.16",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/preset-env": "^7.12.17",
     "@babel/preset-react": "^7.12.13",
     "eslint": "^7.24.0",
