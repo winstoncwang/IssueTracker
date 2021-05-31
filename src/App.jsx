@@ -6,7 +6,7 @@ class IssueFilter extends React.Component { // eslint-disable-line
   }
 }
 
-function IssueRow (props) {
+function IssueRow ( props ) {
     const issue = props.issue
     return (
             <tr>
@@ -21,8 +21,8 @@ function IssueRow (props) {
     )
 }
 
-function IssueTable (props) {
-    const issueRows = props.issues.map(issue => <IssueRow key={issue.id} issue={issue}/>)
+function IssueTable ( props ) {
+    const issueRows = props.issues.map( issue => <IssueRow key={issue.id} issue={issue}/> )
     return (
             <table className="bordered-table">
                 <thead>
@@ -44,11 +44,11 @@ function IssueTable (props) {
 }
 
 //graphql date iso formatting
-const dateRegex = new RegExp(/^\d\d\d\d-\d\d-\d\d/);
+const dateRegex = new RegExp( /^\d\d\d\d-\d\d-\d\d/ );
 
-function jsonDateReviver(key, value){ //reviver for json.parse()
-    if(dateRegex.test(value)){
-        return new Date(value);
+function jsonDateReviver( key, value ){ //reviver for json.parse()
+    if( dateRegex.test( value ) ){
+        return new Date( value );
     }
     return value;
 }
@@ -58,22 +58,22 @@ class IssueAdd extends React.Component { // eslint-disable-line
         super();
     }
     //use arrowfunction for onSubmit or bind this to handleSubmit in constructor
-    handleSubmit (event) {
+    handleSubmit ( event ) {
         event.preventDefault();
         const form = document.forms.issueAdd; //form collection
         const issue = {
-            due:new Date(new Date().getTime() + 1000*60*60*24*15), //set due day to + 15 days from date of submit
+            due:new Date( new Date().getTime() + 1000 * 60 * 60 * 24 * 15 ), //set due day to + 15 days from date of submit
             owner:form.owner.value,
             title:form.title.value
         }
-        this.props.createIssue(issue);
+        this.props.createIssue( issue );
         form.owner.value = "";
         form.title.value = "";
     }
 
     render () {
         return (
-            <form name="issueAdd" onSubmit={(event) => {this.handleSubmit(event)}}>
+            <form name="issueAdd" onSubmit={( event ) => {this.handleSubmit( event )}}>
                 <input type="text" name="owner" placeholder="Owner" />
                 <input type="text" name="title" placeholder="Title" />
                 <button>Add</button>
@@ -104,8 +104,10 @@ class IssueList extends React.Component { // eslint-disable-line
             }
         }`
         //axios through unpkg
+        /* eslint-disable */
         try {
             const response = await axios({
+                /* eslint-disable */
                 method:'post',
                 url:'/graphql',
                 headers:{'Content-Type':'application/json'},
@@ -121,16 +123,23 @@ class IssueList extends React.Component { // eslint-disable-line
         }catch(err){
             console.log(JSON.stringify(err))
         }
+        
 
     }
     createIssue = async(issue) => {
-        const query =`mutation{
-            issueAdd(issue:{
-                title:"${issue.title}",
-                owner:"${issue.owner}",
-                due:"${issue.due.toISOString()}"
-            })
-            {id title due}
+        // const query =`mutation{
+        //     issueAdd(issue:{
+        //         title:"${issue.title}",
+        //         owner:"${issue.owner}",
+        //         due:"${issue.due.toISOString()}"
+        //     })
+        //     {id title due}
+        // }`
+
+        const query = `mutation issueAdd($issue:IssueInputs!){
+            issueAdd(issue:$issue){
+                id
+            }
         }`
 
         try{
@@ -138,10 +147,11 @@ class IssueList extends React.Component { // eslint-disable-line
                 method:'post',
                 url:'/graphql',
                 headers:{'Content-Type':'application/json'},
-                data:JSON.stringify({query}),
+                data:JSON.stringify({query, variables:{ issue }}),
             });
             const {data} = await response.data
-            console.log('response: '+JSON.stringify(data))
+            console.log('post response: '+JSON.stringify(data))
+            this.loadData();
         }catch(err){
             console.log(err)
         }

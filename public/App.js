@@ -154,7 +154,15 @@ var IssueList = /*#__PURE__*/function (_React$Component3) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                query = "mutation{\n            issueAdd(issue:{\n                title:\"".concat(issue.title, "\",\n                owner:\"").concat(issue.owner, "\",\n                due:\"").concat(issue.due.toISOString(), "\"\n            })\n            {id title due}\n        }");
+                // const query =`mutation{
+                //     issueAdd(issue:{
+                //         title:"${issue.title}",
+                //         owner:"${issue.owner}",
+                //         due:"${issue.due.toISOString()}"
+                //     })
+                //     {id title due}
+                // }`
+                query = "mutation issueAdd($issue:IssueInputs!){\n            issueAdd(issue:$issue){\n                id\n            }\n        }";
                 _context.prev = 1;
                 _context.next = 4;
                 return axios({
@@ -164,7 +172,10 @@ var IssueList = /*#__PURE__*/function (_React$Component3) {
                     'Content-Type': 'application/json'
                   },
                   data: JSON.stringify({
-                    query: query
+                    query: query,
+                    variables: {
+                      issue: issue
+                    }
                   })
                 });
 
@@ -176,21 +187,24 @@ var IssueList = /*#__PURE__*/function (_React$Component3) {
               case 7:
                 _yield$response$data = _context.sent;
                 data = _yield$response$data.data;
-                console.log('response: ' + JSON.stringify(data));
-                _context.next = 15;
+                console.log('post response: ' + JSON.stringify(data));
+
+                _this2.loadData();
+
+                _context.next = 16;
                 break;
 
-              case 12:
-                _context.prev = 12;
+              case 13:
+                _context.prev = 13;
                 _context.t0 = _context["catch"](1);
                 console.log(_context.t0);
 
-              case 15:
+              case 16:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[1, 12]]);
+        }, _callee, null, [[1, 13]]);
       }));
 
       return function (_x) {
@@ -225,9 +239,12 @@ var IssueList = /*#__PURE__*/function (_React$Component3) {
                 //graphql query
                 query = "query {\n            issueList{\n                id title status owner created effort due\n            }\n        }"; //axios through unpkg
 
+                /* eslint-disable */
+
                 _context2.prev = 1;
                 _context2.next = 4;
                 return axios({
+                  /* eslint-disable */
                   method: 'post',
                   url: '/graphql',
                   headers: {

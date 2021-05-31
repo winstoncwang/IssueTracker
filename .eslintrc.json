@@ -28,7 +28,9 @@
         "react/jsx-uses-react":"off",
         "react/prop-types":"off",
         "arrow-spacing":"warn",
-        "space-infix-ops":"warn"
+        "space-infix-ops":"warn",
+        "space-in-parens":["warn", "always"],
+        "object-curly-spacing":["warn", "always"]
     },
     "settings": {
         "react":{

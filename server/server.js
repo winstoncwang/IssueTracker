@@ -5,7 +5,7 @@ const {GraphQLScalarType} = require('graphql')
 const {Kind} = require('graphql/language')
 //graphql
 
-const {ApolloServer} = require('apollo-server-express');
+const {ApolloServer, UserInputError} = require('apollo-server-express');
 
 //graphql custom scalar type
 
@@ -15,11 +15,16 @@ const GraphQLDate = new GraphQLScalarType({
     serialize(value){
         return value.toISOString();
     },
-    parseValue(value){  //in pre-parsed JSON case, this is called.
-        return new Date(value);
+    parseValue(value){  //in pre-parsed JSON case, this is called when query variables are used.
+        const dateValue = new Date(value);
+        return isNaN(dateValue) ? undefined:dateValue;
+
     },
-    parseLiteral(ast){ //in normal cases, parseLiteral is called.
-        return (ast.kind == Kind.STRING) ? new Date(ast.value) : undefined;
+    parseLiteral(ast){ //when literal query strings are used, parseLiteral is called.
+        if(ast.kind == Kind.STRING){
+            const value = new Date(ast.value);
+            return isNaN(value) ? undefined :value;
+        }
     }
 })
 
@@ -49,10 +54,10 @@ const resolvers = {
 };
 
 function issueAdd (_,{ issue }){
-    console.log(issue)
+    issueValidate(issue);
+    console.log('Added issue: '+ JSON.stringify(issue))
     issue.created = new Date();
     issue.id = issuesDB.length + 1;
-    if(issue.status == undefined){issue.status="New"};
     issuesDB.push(issue);
     return issue;
 }
@@ -65,9 +70,28 @@ function setAboutMessage(_, { message }){
     return aboutMessage = message;
 };
 
+//validation
+function issueValidate(issue){
+    const errors = [];
+    if(issue.title.length<3){
+        errors.push('Field "title" must be at least 3 characters long.');
+        
+    }
+    if(issue.status == 'Assigned' && !issue.owner){
+        errors.push('Field "owner" is required when status is "Assigned"');
+    }
+    if(errors.length>0){
+        throw new UserInputError('Invalid inputs(s)',{errors})
+    }
+}
+
 const server = new ApolloServer({
     typeDefs: fs.readFileSync('./server/schema.graphql','utf-8'),
-    resolvers
+    resolvers,
+    formatError: error=> {
+        console.log(error);
+        return error;
+    }
 });
 
 server.applyMiddleware({app, path:'/graphql'})

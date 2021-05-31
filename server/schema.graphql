@@ -12,10 +12,18 @@ type Mutation {
 
 scalar GraphQLDate
 
+"list of default values used to validate against"
+enum StatusType {
+  New
+  Assigned
+  Fixed
+  Closed
+}
+
 type Issue {
   id: Int!
   title: String!
-  status: String!
+  status: StatusType!
   owner: String!
   effort: Int
   created: GraphQLDate!
@@ -26,7 +34,7 @@ type Issue {
 input IssueInputs {
   title: String!
   "Optional, if not supplied, will be set to New by issueAdd"
-  status: String
+  status: StatusType = New
   owner: String
   effort: Int
   due: GraphQLDate
