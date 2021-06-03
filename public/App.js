@@ -148,8 +148,7 @@ var IssueList = /*#__PURE__*/function (_React$Component3) {
 
     _defineProperty(_assertThisInitialized(_this2), "createIssue", /*#__PURE__*/function () {
       var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(issue) {
-        var query, response, _yield$response$data, data;
-
+        var query, result;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -163,9 +162,42 @@ var IssueList = /*#__PURE__*/function (_React$Component3) {
                 //     {id title due}
                 // }`
                 query = "mutation issueAdd($issue:IssueInputs!){\n            issueAdd(issue:$issue){\n                id\n            }\n        }";
-                _context.prev = 1;
-                _context.next = 4;
+                _context.next = 3;
+                return _this2.graphQLFetch(query, {
+                  issue: issue
+                });
+
+              case 3:
+                result = _context.sent;
+
+                if (result) {
+                  _this2.loadData();
+                }
+
+              case 5:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
+
+      return function (_x) {
+        return _ref.apply(this, arguments);
+      };
+    }());
+
+    _defineProperty(_assertThisInitialized(_this2), "graphQLFetch", /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(query, variables) {
+        var response, result, error, details;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.prev = 0;
+                _context2.next = 3;
                 return axios({
+                  /* eslint-disable */
                   method: 'post',
                   url: '/graphql',
                   headers: {
@@ -173,42 +205,53 @@ var IssueList = /*#__PURE__*/function (_React$Component3) {
                   },
                   data: JSON.stringify({
                     query: query,
-                    variables: {
-                      issue: issue
-                    }
-                  })
+                    variables: variables
+                  }),
+                  transformResponse: [function (data) {
+                    //responseType does not work
+                    data = JSON.parse(data, jsonDateReviver);
+                    return data;
+                  }]
                 });
 
-              case 4:
-                response = _context.sent;
-                _context.next = 7;
+              case 3:
+                response = _context2.sent;
+                _context2.next = 6;
                 return response.data;
 
-              case 7:
-                _yield$response$data = _context.sent;
-                data = _yield$response$data.data;
-                console.log('post response: ' + JSON.stringify(data));
+              case 6:
+                result = _context2.sent;
 
-                _this2.loadData();
+                //console.log('calling from graphqlfetch: '+JSON.stringify(result))
+                //handling result error
+                if (result.errors) {
+                  error = result.errors[0];
 
-                _context.next = 16;
-                break;
+                  if (error.extensions.code == "BAD_USER_INPUT") {
+                    details = error.extensions.exception.errors.join('\n ');
+                    alert("".concat(error.message, ":\n ") + "".concat(details));
+                  } else {
+                    alert("".concat(error.extensions.code, ": ").concat(error.message));
+                  }
+                }
 
-              case 13:
-                _context.prev = 13;
-                _context.t0 = _context["catch"](1);
-                console.log(_context.t0);
+                return _context2.abrupt("return", result.data);
 
-              case 16:
+              case 11:
+                _context2.prev = 11;
+                _context2.t0 = _context2["catch"](0);
+                alert("Error in sending data to server: ".concat(_context2.t0.message));
+
+              case 14:
               case "end":
-                return _context.stop();
+                return _context2.stop();
             }
           }
-        }, _callee, null, [[1, 13]]);
+        }, _callee2, null, [[0, 11]]);
       }));
 
-      return function (_x) {
-        return _ref.apply(this, arguments);
+      return function (_x2, _x3) {
+        return _ref2.apply(this, arguments);
       };
     }());
 
@@ -229,63 +272,33 @@ var IssueList = /*#__PURE__*/function (_React$Component3) {
   }, {
     key: "loadData",
     value: function () {
-      var _loadData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
-        var query, response, _yield$response$data2, result;
-
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      var _loadData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+        var query, result;
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
                 //graphql query
                 query = "query {\n            issueList{\n                id title status owner created effort due\n            }\n        }"; //axios through unpkg
 
-                /* eslint-disable */
+                _context3.next = 3;
+                return this.graphQLFetch(query);
 
-                _context2.prev = 1;
-                _context2.next = 4;
-                return axios({
-                  /* eslint-disable */
-                  method: 'post',
-                  url: '/graphql',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  data: JSON.stringify({
-                    query: query
-                  }),
-                  transformResponse: [function (data) {
-                    //responseType does not work
-                    data = JSON.parse(data, jsonDateReviver);
-                    return data;
-                  }]
-                });
+              case 3:
+                result = _context3.sent;
 
-              case 4:
-                response = _context2.sent;
-                _context2.next = 7;
-                return response.data;
+                if (result) {
+                  this.setState({
+                    issues: result.issueList
+                  });
+                }
 
-              case 7:
-                _yield$response$data2 = _context2.sent;
-                result = _yield$response$data2.data;
-                //console.log(result)
-                this.setState({
-                  issues: result.issueList
-                });
-                _context2.next = 15;
-                break;
-
-              case 12:
-                _context2.prev = 12;
-                _context2.t0 = _context2["catch"](1);
-                console.log(JSON.stringify(_context2.t0));
-
-              case 15:
+              case 5:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2, this, [[1, 12]]);
+        }, _callee3, this);
       }));
 
       function loadData() {

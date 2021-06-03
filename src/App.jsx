@@ -104,29 +104,12 @@ class IssueList extends React.Component { // eslint-disable-line
             }
         }`
         //axios through unpkg
-        /* eslint-disable */
-        try {
-            const response = await axios({
-                /* eslint-disable */
-                method:'post',
-                url:'/graphql',
-                headers:{'Content-Type':'application/json'},
-                data:JSON.stringify({query}),
-                transformResponse: [function(data){ //responseType does not work
-                    data = JSON.parse(data,jsonDateReviver)
-                    return data;
-                }],
-            });
-            const {data:result} = await response.data;
-            //console.log(result)
+        const result = await this.graphQLFetch(query)
+        if(result){
             this.setState({issues:result.issueList})
-        }catch(err){
-            console.log(JSON.stringify(err))
         }
-        
-
     }
-    createIssue = async(issue) => {
+    createIssue = async( issue ) => {
         // const query =`mutation{
         //     issueAdd(issue:{
         //         title:"${issue.title}",
@@ -142,21 +125,47 @@ class IssueList extends React.Component { // eslint-disable-line
             }
         }`
 
-        try{
-            const response = await axios({
-                method:'post',
-                url:'/graphql',
-                headers:{'Content-Type':'application/json'},
-                data:JSON.stringify({query, variables:{ issue }}),
-            });
-            const {data} = await response.data
-            console.log('post response: '+JSON.stringify(data))
+        const result = await this.graphQLFetch(query,{ issue });
+        if(result){
             this.loadData();
-        }catch(err){
-            console.log(err)
         }
 
     }
+    //graphqlFetch
+    graphQLFetch = async (query, variables) => {
+        try{
+            /* eslint-disable */
+            const response = await axios({
+            /* eslint-disable */
+                method:'post',
+                url:'/graphql',
+                headers:{'Content-Type':'application/json'},
+                data:JSON.stringify({query,variables}),
+                transformResponse: [function(data){ //responseType does not work
+                    data = JSON.parse(data,jsonDateReviver)
+                    return data;
+                }],
+            });
+            const result = await response.data;
+            //console.log('calling from graphqlfetch: '+JSON.stringify(result))
+            
+            //handling result error
+            if(result.errors){
+                const error = result.errors[0];
+                if(error.extensions.code == "BAD_USER_INPUT"){
+                    const details = error.extensions.exception.errors.join('\n ');
+                    alert(`${error.message}:\n `+`${details}`);
+                }else{
+                    alert(`${error.extensions.code}: ${error.message}`);
+                }
+            }
+            return result.data;
+
+        }catch(e){
+            alert(`Error in sending data to server: ${e.message}`);
+        }
+    }
+
     /* eslint-disable */
     render () {
         return (
