@@ -26,6 +26,7 @@
     "axios": "^0.21.1",
     "express": "^4.17.1",
     "graphql": "^0.13.2",
+    "mongodb": "^3.6.9",
     "nodemon": "^1.19.4"
   },
   "devDependencies": {
